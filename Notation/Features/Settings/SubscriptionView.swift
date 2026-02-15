@@ -94,7 +94,9 @@ struct SubscriptionView: View {
                 }
             }
             .navigationTitle("Go Pro")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

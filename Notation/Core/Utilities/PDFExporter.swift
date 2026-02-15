@@ -5,18 +5,23 @@ import UIKit
 import AppKit
 #endif
 
+#if os(iOS)
+typealias PlatformFont = UIFont
+typealias PlatformColor = UIColor
+#elseif os(macOS)
+typealias PlatformFont = NSFont
+typealias PlatformColor = NSColor
+#endif
+
 @MainActor
 final class PDFExporter {
 
     // Export a single page to PDF data
     func exportPage(_ page: Page, textContent: NSAttributedString?) -> Data {
         let pageSize = page.displaySize
-        let renderer = createPDFRenderer(size: pageSize)
-
-        return renderer.pdfData { context in
-            context.beginPage()
+        return createPDFData(size: pageSize) { context in
             drawPageContent(
-                in: context.cgContext,
+                in: context,
                 page: page,
                 textContent: textContent,
                 size: pageSize
@@ -26,37 +31,76 @@ final class PDFExporter {
 
     // Export multiple pages (entire notebook/section) to PDF data
     func exportPages(_ pages: [Page], textContents: [UUID: NSAttributedString]) -> Data {
-        guard let firstPage = pages.first else {
+        guard !pages.isEmpty else {
             return Data()
         }
 
-        let pageSize = firstPage.displaySize
-        let renderer = createPDFRenderer(size: pageSize)
-
-        return renderer.pdfData { context in
-            for page in pages {
-                let size = page.displaySize
-                var pageRect = CGRect(origin: .zero, size: size)
-                context.beginPage(withBounds: pageRect, pageInfo: [:])
-                drawPageContent(
-                    in: context.cgContext,
-                    page: page,
-                    textContent: textContents[page.id],
-                    size: size
-                )
-            }
+        let mutableData = NSMutableData()
+        guard let consumer = CGDataConsumer(data: mutableData as CFMutableData),
+              let firstPage = pages.first else {
+            return Data()
         }
+
+        let firstSize = firstPage.displaySize
+        var mediaBox = CGRect(origin: .zero, size: firstSize)
+
+        guard let pdfContext = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else {
+            return Data()
+        }
+
+        let info: [CFString: CFString] = [
+            kCGPDFContextTitle: "Notation Export" as CFString,
+            kCGPDFContextCreator: "Notation App" as CFString
+        ]
+
+        for page in pages {
+            let size = page.displaySize
+            var pageRect = CGRect(origin: .zero, size: size)
+            pdfContext.beginPDFPage(info as CFDictionary)
+            drawPageContent(
+                in: pdfContext,
+                page: page,
+                textContent: textContents[page.id],
+                size: size
+            )
+            pdfContext.endPDFPage()
+        }
+
+        pdfContext.closePDF()
+        return mutableData as Data
     }
 
     // MARK: - Private
 
-    private func createPDFRenderer(size: CGSize) -> UIGraphicsPDFRenderer {
+    private func createPDFData(size: CGSize, draw: (CGContext) -> Void) -> Data {
+        #if os(iOS)
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = [
             kCGPDFContextTitle as String: "Notation Export",
             kCGPDFContextCreator as String: "Notation App"
         ]
-        return UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: size), format: format)
+        let renderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: size), format: format)
+        return renderer.pdfData { context in
+            context.beginPage()
+            draw(context.cgContext)
+        }
+        #elseif os(macOS)
+        let mutableData = NSMutableData()
+        var mediaBox = CGRect(origin: .zero, size: size)
+        guard let consumer = CGDataConsumer(data: mutableData as CFMutableData),
+              let pdfContext = CGContext(consumer: consumer, mediaBox: &mediaBox, nil) else {
+            return Data()
+        }
+        let info: [CFString: CFString] = [
+            kCGPDFContextTitle: "Notation Export" as CFString,
+            kCGPDFContextCreator: "Notation App" as CFString
+        ]
+        pdfContext.beginPDFPage(info as CFDictionary)
+        draw(pdfContext)
+        pdfContext.endPDFPage()
+        pdfContext.closePDF()
+        return mutableData as Data
+        #endif
     }
 
     private func drawPageContent(
@@ -82,7 +126,6 @@ final class PDFExporter {
             )
             attributedString.draw(in: textRect)
         } else {
-            // Render from page.textContent blocks
             drawTextBlocks(page.textContent.blocks, in: context, size: size)
         }
     }
@@ -109,31 +152,35 @@ final class PDFExporter {
         var yOffset: CGFloat = 50
 
         for block in blocks {
-            let font: UIFont
-            let color: UIColor
+            let font: PlatformFont
+            let color: PlatformColor
 
             switch block.style {
             case .heading:
                 font = .systemFont(ofSize: 22, weight: .bold)
-                color = .black
+                color = PlatformColor.black
             case .subheading:
                 font = .systemFont(ofSize: 18, weight: .semibold)
-                color = .darkGray
+                color = PlatformColor.darkGray
             case .body:
                 font = .systemFont(ofSize: 14, weight: .regular)
-                color = .black
+                color = PlatformColor.black
             case .bullet:
                 font = .systemFont(ofSize: 14, weight: .regular)
-                color = .black
+                color = PlatformColor.black
             case .numbered:
                 font = .systemFont(ofSize: 14, weight: .regular)
-                color = .black
+                color = PlatformColor.black
             case .quote:
-                font = .italicSystemFont(ofSize: 14)
-                color = .gray
+                #if os(iOS)
+                font = PlatformFont.italicSystemFont(ofSize: 14)
+                #else
+                font = NSFontManager.shared.convert(.systemFont(ofSize: 14), toHaveTrait: .italicFontMask)
+                #endif
+                color = PlatformColor.gray
             case .code:
-                font = UIFont(name: "Menlo", size: 12) ?? .systemFont(ofSize: 12)
-                color = .darkGray
+                font = PlatformFont(name: "Menlo", size: 12) ?? .systemFont(ofSize: 12)
+                color = PlatformColor.darkGray
             }
 
             let prefix: String

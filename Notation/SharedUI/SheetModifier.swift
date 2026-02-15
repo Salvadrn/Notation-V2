@@ -15,7 +15,9 @@ struct NotationSheet<Content: View>: View {
         NavigationStack {
             content()
                 .navigationTitle(title)
+                #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
+                #endif
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel", action: onDismiss)

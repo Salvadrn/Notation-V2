@@ -36,7 +36,9 @@ struct NewFolderSheet: View {
             }
             .padding(Theme.Spacing.xl)
             .navigationTitle("New Folder")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

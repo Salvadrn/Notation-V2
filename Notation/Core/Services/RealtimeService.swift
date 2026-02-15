@@ -2,7 +2,7 @@ import Foundation
 import Supabase
 import Realtime
 
-struct PresenceUser: Codable {
+struct PresenceUser: Codable, Sendable {
     let userId: String
     let userName: String
     let pageId: String?
@@ -25,8 +25,8 @@ final class RealtimeService: ObservableObject {
     func joinNotebookChannel(
         notebookId: UUID,
         userName: String,
-        onPageChange: @escaping (Page) -> Void,
-        onLayerChange: @escaping (PageLayer) -> Void
+        onPageChange: @escaping @Sendable (Page) -> Void,
+        onLayerChange: @escaping @Sendable (PageLayer) -> Void
     ) async throws {
         let channelName = "\(Constants.Realtime.channelPrefix)\(notebookId.uuidString)"
 
@@ -38,8 +38,7 @@ final class RealtimeService: ObservableObject {
         let pageChanges = channel.postgresChange(
             AnyAction.self,
             schema: "public",
-            table: "pages",
-            filter: "section_id=in.(select id from sections where notebook_id='\(notebookId.uuidString)')"
+            table: "pages"
         )
 
         let layerChanges = channel.postgresChange(
@@ -67,44 +66,63 @@ final class RealtimeService: ObservableObject {
         isConnected = true
 
         // Handle page changes
-        Task {
+        Task { @Sendable in
             for await change in pageChanges {
-                if let record = change.record {
-                    if let data = try? JSONSerialization.data(withJSONObject: record),
-                       let page = try? JSONDecoder.supabaseDecoder.decode(Page.self, from: data) {
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                switch change {
+                case .insert(let action):
+                    if let page = try? action.decodeRecord(as: Page.self, decoder: decoder) {
                         await MainActor.run { onPageChange(page) }
                     }
+                case .update(let action):
+                    if let page = try? action.decodeRecord(as: Page.self, decoder: decoder) {
+                        await MainActor.run { onPageChange(page) }
+                    }
+                case .delete:
+                    break
                 }
             }
         }
 
         // Handle layer changes
-        Task {
+        Task { @Sendable in
             for await change in layerChanges {
-                if let record = change.record {
-                    if let data = try? JSONSerialization.data(withJSONObject: record),
-                       let layer = try? JSONDecoder.supabaseDecoder.decode(PageLayer.self, from: data) {
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+                switch change {
+                case .insert(let action):
+                    if let layer = try? action.decodeRecord(as: PageLayer.self, decoder: decoder) {
                         await MainActor.run { onLayerChange(layer) }
                     }
+                case .update(let action):
+                    if let layer = try? action.decodeRecord(as: PageLayer.self, decoder: decoder) {
+                        await MainActor.run { onLayerChange(layer) }
+                    }
+                case .delete:
+                    break
                 }
             }
         }
 
         // Handle presence
-        Task {
-            for await _ in presenceChanges {
-                let presences = channel.presenceState()
-                var users: [PresenceUser] = []
-                for (_, presenceList) in presences {
-                    for presence in presenceList {
-                        if let data = try? JSONSerialization.data(withJSONObject: presence),
-                           let user = try? JSONDecoder().decode(PresenceUser.self, from: data) {
-                            users.append(user)
+        Task { @Sendable [weak self] in
+            for await action in presenceChanges {
+                let joins = (try? action.decodeJoins(as: PresenceUser.self)) ?? []
+                let leaves = (try? action.decodeLeaves(as: PresenceUser.self)) ?? []
+                await MainActor.run {
+                    guard let self else { return }
+                    var current = self.activeCollaborators[channelName] ?? []
+                    // Add joins
+                    for user in joins {
+                        if !current.contains(where: { $0.userId == user.userId }) {
+                            current.append(user)
                         }
                     }
-                }
-                await MainActor.run {
-                    self.activeCollaborators[channelName] = users
+                    // Remove leaves
+                    let leaveIds = Set(leaves.map(\.userId))
+                    current.removeAll { leaveIds.contains($0.userId) }
+                    self.activeCollaborators[channelName] = current
                 }
             }
         }
@@ -126,10 +144,7 @@ final class RealtimeService: ObservableObject {
         let channelName = "\(Constants.Realtime.channelPrefix)\(notebookId.uuidString)"
         guard let channel = channels[channelName] else { return }
 
-        let data = try JSONEncoder().encode(page)
-        let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
-
-        try await channel.broadcast(event: "page_update", message: dict)
+        try await channel.broadcast(event: "page_update", message: page)
     }
 
     func updatePresencePage(notebookId: UUID, pageId: UUID?, userName: String) async throws {

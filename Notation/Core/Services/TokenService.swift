@@ -1,6 +1,11 @@
 import Foundation
 import Supabase
 
+private struct IncrementTokenParams: Encodable {
+    let user_id_input: String
+    let amount_input: Int
+}
+
 @MainActor
 final class TokenService {
     private let supabase: SupabaseService
@@ -54,7 +59,7 @@ final class TokenService {
         // Update balance
         try await supabase.client.rpc(
             "increment_token_balance",
-            params: ["user_id_input": uid.uuidString, "amount_input": amount]
+            params: IncrementTokenParams(user_id_input: uid.uuidString, amount_input: amount)
         ).execute()
     }
 
@@ -82,7 +87,7 @@ final class TokenService {
         // Update balance
         try await supabase.client.rpc(
             "increment_token_balance",
-            params: ["user_id_input": uid.uuidString, "amount_input": -amount]
+            params: IncrementTokenParams(user_id_input: uid.uuidString, amount_input: -amount)
         ).execute()
     }
 

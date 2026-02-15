@@ -35,7 +35,7 @@ struct WorkspaceView: View {
                         }
                     }
 
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .cancellationAction) {
                         Button {
                             showSettings = true
                         } label: {

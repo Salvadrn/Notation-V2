@@ -77,7 +77,9 @@ struct NewNotebookSheet: View {
             }
             .padding(Theme.Spacing.xl)
             .navigationTitle("New Notebook")
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
