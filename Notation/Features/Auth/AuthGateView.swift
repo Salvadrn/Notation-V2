@@ -10,9 +10,6 @@ struct AuthGateView: View {
                 WorkspaceView()
             } else {
                 LoginView(viewModel: authViewModel)
-                    .sheet(isPresented: $authViewModel.showSignUp) {
-                        SignUpView(viewModel: authViewModel)
-                    }
             }
         }
         .animation(Theme.Animation.standard, value: supabase.isAuthenticated)

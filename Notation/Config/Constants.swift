@@ -40,11 +40,11 @@ enum Constants {
 
     // MARK: - StoreKit Product IDs
     enum Products {
-        static let proMonthly = "com.notation.pro.monthly"
-        static let proYearly = "com.notation.pro.yearly"
-        static let tokenPack100 = "com.notation.tokens.100"
-        static let tokenPack500 = "com.notation.tokens.500"
-        static let tokenPack1000 = "com.notation.tokens.1000"
+        static let proMonthly = "com.sdnotation.pro.monthly"
+        static let proYearly = "com.sdnotation.pro.yearly"
+        static let tokenPack100 = "com.sdnotation.tokens.100"
+        static let tokenPack500 = "com.sdnotation.tokens.500"
+        static let tokenPack1000 = "com.sdnotation.tokens.1000"
     }
 
     // MARK: - Autosave

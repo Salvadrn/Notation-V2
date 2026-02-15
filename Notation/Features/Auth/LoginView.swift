@@ -1,4 +1,5 @@
 import SwiftUI
+import AuthenticationServices
 
 struct LoginView: View {
     @ObservedObject var viewModel: AuthViewModel
@@ -24,28 +25,8 @@ struct LoginView: View {
 
             Spacer()
 
-            // Form
+            // Sign in with Apple
             VStack(spacing: Theme.Spacing.lg) {
-                TextField("Email", text: $viewModel.email)
-                    .textFieldStyle(.plain)
-                    .padding(Theme.Spacing.md)
-                    .background(Theme.Colors.backgroundSecondary)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
-                    #if os(iOS)
-                    .textContentType(.emailAddress)
-                    .keyboardType(.emailAddress)
-                    .autocapitalization(.none)
-                    #endif
-
-                SecureField("Password", text: $viewModel.password)
-                    .textFieldStyle(.plain)
-                    .padding(Theme.Spacing.md)
-                    .background(Theme.Colors.backgroundSecondary)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
-                    #if os(iOS)
-                    .textContentType(.password)
-                    #endif
-
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .font(Theme.Typography.caption)
@@ -53,41 +34,27 @@ struct LoginView: View {
                         .multilineTextAlignment(.center)
                 }
 
-                Button {
-                    Task { await viewModel.signIn() }
-                } label: {
-                    Group {
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .tint(.white)
-                        } else {
-                            Text("Sign In")
-                                .font(Theme.Typography.headline)
+                SignInWithAppleButton(.signIn) { request in
+                    request.requestedScopes = [.fullName, .email]
+                } onCompletion: { result in
+                    switch result {
+                    case .success(let authorization):
+                        if let credential = authorization.credential as? ASAuthorizationAppleIDCredential {
+                            Task { await viewModel.signInWithApple(credential: credential) }
                         }
+                    case .failure(let error):
+                        viewModel.errorMessage = error.localizedDescription
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(Theme.Spacing.md)
-                    .background(Theme.Colors.primaryFallback)
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
                 }
-                .disabled(viewModel.isLoading)
+                .signInWithAppleButtonStyle(.white)
+                .frame(height: 50)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.md))
+
+                if viewModel.isLoading {
+                    ProgressView()
+                }
             }
             .padding(.horizontal, Theme.Spacing.xl)
-
-            // Sign Up Link
-            Button {
-                viewModel.showSignUp = true
-            } label: {
-                HStack(spacing: Theme.Spacing.xs) {
-                    Text("Don't have an account?")
-                        .foregroundStyle(Theme.Colors.textSecondary)
-                    Text("Sign Up")
-                        .foregroundStyle(Theme.Colors.primaryFallback)
-                        .fontWeight(.semibold)
-                }
-                .font(Theme.Typography.subheadline)
-            }
 
             Spacer()
         }

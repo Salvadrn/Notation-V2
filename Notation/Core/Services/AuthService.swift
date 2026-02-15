@@ -12,22 +12,32 @@ final class AuthService: ObservableObject {
         self.supabase = supabase
     }
 
-    func signUp(email: String, password: String, fullName: String) async throws {
+    func signInWithApple(idToken: String, fullName: PersonNameComponents?) async throws {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
 
         do {
-            let response = try await supabase.client.auth.signUp(
-                email: email,
-                password: password,
-                data: ["full_name": .string(fullName)]
+            let session = try await supabase.client.auth.signInWithIdToken(
+                credentials: .init(provider: .apple, idToken: idToken)
             )
 
-            // Create profile row
+            // On first sign-in, Apple provides the user's name.
+            // Save it to user metadata and create the profile row.
+            let displayName = [fullName?.givenName, fullName?.familyName]
+                .compactMap { $0 }
+                .joined(separator: " ")
+
+            if !displayName.isEmpty {
+                try await supabase.client.auth.update(
+                    user: UserAttributes(data: ["full_name": .string(displayName)])
+                )
+            }
+
+            // Upsert profile so it exists for both new and returning users
             let profile = Profile(
-                id: response.user.id,
-                fullName: fullName,
+                id: session.user.id,
+                fullName: displayName.isEmpty ? nil : displayName,
                 avatarUrl: nil,
                 subscriptionTier: .free,
                 tokenBalance: Constants.Tokens.starterPackAmount,
@@ -37,25 +47,9 @@ final class AuthService: ObservableObject {
 
             try await supabase.client
                 .from("profiles")
-                .insert(profile)
+                .upsert(profile, onConflict: "id", ignoreDuplicates: true)
                 .execute()
 
-        } catch {
-            errorMessage = error.localizedDescription
-            throw error
-        }
-    }
-
-    func signIn(email: String, password: String) async throws {
-        isLoading = true
-        errorMessage = nil
-        defer { isLoading = false }
-
-        do {
-            try await supabase.client.auth.signIn(
-                email: email,
-                password: password
-            )
         } catch {
             errorMessage = error.localizedDescription
             throw error

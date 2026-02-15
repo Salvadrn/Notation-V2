@@ -1,14 +1,10 @@
 import SwiftUI
-import Combine
+import AuthenticationServices
 
 @MainActor
 final class AuthViewModel: ObservableObject {
-    @Published var email = ""
-    @Published var password = ""
-    @Published var fullName = ""
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var showSignUp = false
 
     private let authService: AuthService
 
@@ -16,17 +12,10 @@ final class AuthViewModel: ObservableObject {
         self.authService = authService
     }
 
-    var isFormValid: Bool {
-        !email.isEmpty && !password.isEmpty && password.count >= 6
-    }
-
-    var isSignUpFormValid: Bool {
-        isFormValid && !fullName.isEmpty
-    }
-
-    func signIn() async {
-        guard isFormValid else {
-            errorMessage = "Please fill in all fields. Password must be at least 6 characters."
+    func signInWithApple(credential: ASAuthorizationAppleIDCredential) async {
+        guard let tokenData = credential.identityToken,
+              let idToken = String(data: tokenData, encoding: .utf8) else {
+            errorMessage = "Unable to retrieve Apple ID token."
             return
         }
 
@@ -34,36 +23,14 @@ final class AuthViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            try await authService.signIn(email: email, password: password)
+            try await authService.signInWithApple(
+                idToken: idToken,
+                fullName: credential.fullName
+            )
         } catch {
             errorMessage = error.localizedDescription
         }
 
         isLoading = false
-    }
-
-    func signUp() async {
-        guard isSignUpFormValid else {
-            errorMessage = "Please fill in all fields. Password must be at least 6 characters."
-            return
-        }
-
-        isLoading = true
-        errorMessage = nil
-
-        do {
-            try await authService.signUp(email: email, password: password, fullName: fullName)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-
-        isLoading = false
-    }
-
-    func clearForm() {
-        email = ""
-        password = ""
-        fullName = ""
-        errorMessage = nil
     }
 }
