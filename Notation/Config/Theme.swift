@@ -1,41 +1,41 @@
 import SwiftUI
 
 enum Theme {
-    // MARK: - Colors
+    // MARK: - Colors (Gray Palette)
     enum Colors {
-        static let primary = Color("Primary", bundle: nil)
-        static let secondary = Color("Secondary", bundle: nil)
+        static let primary = Color(hex: "#4F4F4F")
+        static let secondary = Color(hex: "#6E6E6E")
 
-        static let primaryFallback = Color(hex: "#6366F1")
-        static let secondaryFallback = Color(hex: "#8B5CF6")
-        static let accent = Color(hex: "#F59E0B")
-        static let destructive = Color(hex: "#EF4444")
-        static let success = Color(hex: "#10B981")
+        static let primaryFallback = Color(hex: "#3A3A3A")
+        static let secondaryFallback = Color(hex: "#5C5C5C")
+        static let accent = Color(hex: "#808080")
+        static let destructive = Color(hex: "#8B0000")
+        static let success = Color(hex: "#4A4A4A")
 
         static let backgroundPrimary = Color(light: .white, dark: Color(hex: "#1C1C1E"))
-        static let backgroundSecondary = Color(light: Color(hex: "#F5F5F7"), dark: Color(hex: "#2C2C2E"))
-        static let backgroundTertiary = Color(light: Color(hex: "#EBEBEF"), dark: Color(hex: "#3A3A3C"))
+        static let backgroundSecondary = Color(light: Color(hex: "#F2F2F2"), dark: Color(hex: "#2C2C2E"))
+        static let backgroundTertiary = Color(light: Color(hex: "#E8E8E8"), dark: Color(hex: "#3A3A3C"))
 
-        static let textPrimary = Color(light: Color(hex: "#1C1C1E"), dark: .white)
-        static let textSecondary = Color(light: Color(hex: "#6B7280"), dark: Color(hex: "#9CA3AF"))
-        static let textTertiary = Color(light: Color(hex: "#9CA3AF"), dark: Color(hex: "#6B7280"))
+        static let textPrimary = Color(light: Color(hex: "#1A1A1A"), dark: .white)
+        static let textSecondary = Color(light: Color(hex: "#5C5C5C"), dark: Color(hex: "#A0A0A0"))
+        static let textTertiary = Color(light: Color(hex: "#999999"), dark: Color(hex: "#666666"))
 
-        static let separator = Color(light: Color(hex: "#E5E7EB"), dark: Color(hex: "#3A3A3C"))
+        static let separator = Color(light: Color(hex: "#D9D9D9"), dark: Color(hex: "#3A3A3C"))
         static let cardBackground = Color(light: .white, dark: Color(hex: "#2C2C2E"))
     }
 
-    // MARK: - Typography (formal serif for titles, default for body)
+    // MARK: - Typography (Aptos)
     enum Typography {
-        static let largeTitle = Font.system(size: 34, weight: .bold, design: .serif)
-        static let title = Font.system(size: 28, weight: .bold, design: .serif)
-        static let title2 = Font.system(size: 22, weight: .semibold, design: .serif)
-        static let title3 = Font.system(size: 20, weight: .semibold, design: .serif)
-        static let headline = Font.system(size: 17, weight: .semibold, design: .default)
-        static let body = Font.system(size: 17, weight: .regular, design: .default)
-        static let callout = Font.system(size: 16, weight: .regular, design: .default)
-        static let subheadline = Font.system(size: 15, weight: .regular, design: .default)
-        static let footnote = Font.system(size: 13, weight: .regular, design: .default)
-        static let caption = Font.system(size: 12, weight: .regular, design: .default)
+        static let largeTitle = Font.custom("Aptos-Bold", size: 34)
+        static let title = Font.custom("Aptos-Bold", size: 28)
+        static let title2 = Font.custom("Aptos-Bold", size: 22)
+        static let title3 = Font.custom("Aptos-Bold", size: 20)
+        static let headline = Font.custom("Aptos-Bold", size: 17)
+        static let body = Font.custom("Aptos", size: 17)
+        static let callout = Font.custom("Aptos", size: 16)
+        static let subheadline = Font.custom("Aptos", size: 15)
+        static let footnote = Font.custom("Aptos", size: 13)
+        static let caption = Font.custom("Aptos-Light", size: 12)
     }
 
     // MARK: - Spacing

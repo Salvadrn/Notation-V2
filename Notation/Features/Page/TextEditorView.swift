@@ -134,12 +134,12 @@ struct TextBlockView: View {
 
     private var blockFont: Font {
         switch block.style {
-        case .heading: return .system(size: 24, weight: .bold, design: .serif)
-        case .subheading: return .system(size: 18, weight: .semibold, design: .serif)
-        case .body: return .system(size: 15, weight: .regular, design: .default)
-        case .bullet: return .system(size: 15, weight: .regular, design: .default)
-        case .numbered: return .system(size: 15, weight: .regular, design: .default)
-        case .quote: return .system(size: 15, weight: .regular, design: .serif)
+        case .heading: return .custom("Aptos-Bold", size: 24)
+        case .subheading: return .custom("Aptos-Bold", size: 18)
+        case .body: return .custom("Aptos", size: 15)
+        case .bullet: return .custom("Aptos", size: 15)
+        case .numbered: return .custom("Aptos", size: 15)
+        case .quote: return .custom("Aptos-SemiBold-Italic", size: 15)
         case .code: return .system(size: 13, weight: .regular, design: .monospaced)
         }
     }

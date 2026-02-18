@@ -8,12 +8,12 @@ struct LoginView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                // Background gradient
+                // Gray gradient background
                 LinearGradient(
                     colors: [
-                        Color(hex: "#1A1A2E"),
-                        Color(hex: "#16213E"),
-                        Color(hex: "#0F3460")
+                        Color(hex: "#1A1A1A"),
+                        Color(hex: "#2A2A2A"),
+                        Color(hex: "#333333")
                     ],
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
@@ -22,39 +22,48 @@ struct LoginView: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
-                        Spacer(minLength: geo.size.height * 0.08)
+                        Spacer(minLength: geo.size.height * 0.06)
 
-                        // Hero section
+                        // Hero section with app icon
                         VStack(spacing: 20) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 24)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [Color(hex: "#6366F1"), Color(hex: "#8B5CF6")],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
+                            // App icon from Assets
+                            Image("AppIcon")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 90, height: 90)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .shadow(color: .black.opacity(0.4), radius: 16, y: 6)
+                                .overlay(
+                                    // Fallback if image not found
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color(hex: "#2A2A2A"), Color(hex: "#1A1A1A")],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
                                         )
-                                    )
-                                    .frame(width: 80, height: 80)
-                                    .shadow(color: Color(hex: "#6366F1").opacity(0.4), radius: 20, y: 8)
-
-                                Image(systemName: "pencil.and.scribble")
-                                    .font(.system(size: 36, weight: .medium))
-                                    .foregroundStyle(.white)
-                            }
+                                        .frame(width: 90, height: 90)
+                                        .overlay(
+                                            Text("N")
+                                                .font(.custom("Aptos-Bold", size: 48))
+                                                .foregroundStyle(.white)
+                                        )
+                                        .opacity(0) // Set to 1 if no asset
+                                )
 
                             VStack(spacing: 8) {
                                 Text("Notation")
-                                    .font(.system(size: 38, weight: .bold, design: .serif))
+                                    .font(.custom("Aptos-Bold", size: 40))
                                     .foregroundStyle(.white)
 
                                 Text("Write. Create. Organize.")
-                                    .font(.system(size: 17, weight: .regular, design: .serif))
-                                    .foregroundStyle(.white.opacity(0.6))
+                                    .font(.custom("Aptos", size: 17))
+                                    .foregroundStyle(.white.opacity(0.5))
                             }
                         }
 
-                        Spacer(minLength: 40)
+                        Spacer(minLength: 36)
 
                         // Feature highlights
                         VStack(spacing: 16) {
@@ -81,19 +90,19 @@ struct LoginView: View {
                         }
                         .padding(.horizontal, 32)
 
-                        Spacer(minLength: 40)
+                        Spacer(minLength: 36)
 
                         // Action buttons
                         VStack(spacing: 14) {
                             if let error = viewModel.errorMessage {
                                 Text(error)
-                                    .font(.system(size: 13, weight: .regular, design: .serif))
-                                    .foregroundStyle(Color(hex: "#EF4444"))
+                                    .font(.custom("Aptos", size: 13))
+                                    .foregroundStyle(Color(hex: "#CC4444"))
                                     .multilineTextAlignment(.center)
                                     .padding(.bottom, 4)
                             }
 
-                            // Guest mode button
+                            // Guest mode button (primary)
                             Button {
                                 supabase.enterGuestMode()
                             } label: {
@@ -101,20 +110,20 @@ struct LoginView: View {
                                     Image(systemName: "arrow.right.circle.fill")
                                         .font(.system(size: 18))
                                     Text("Start Writing")
-                                        .font(.system(size: 17, weight: .semibold, design: .serif))
+                                        .font(.custom("Aptos-Bold", size: 17))
                                 }
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 52)
                                 .background(
                                     LinearGradient(
-                                        colors: [Color(hex: "#6366F1"), Color(hex: "#8B5CF6")],
+                                        colors: [Color(hex: "#4A4A4A"), Color(hex: "#5C5C5C")],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
                                 )
                                 .foregroundStyle(.white)
                                 .clipShape(RoundedRectangle(cornerRadius: 14))
-                                .shadow(color: Color(hex: "#6366F1").opacity(0.3), radius: 12, y: 4)
+                                .shadow(color: .black.opacity(0.3), radius: 10, y: 4)
                             }
 
                             // Apple sign in
@@ -142,20 +151,21 @@ struct LoginView: View {
                             }
 
                             Text("Files are saved on this device. Create an account later to sync across devices.")
-                                .font(.system(size: 12, weight: .regular, design: .serif))
-                                .foregroundStyle(.white.opacity(0.4))
+                                .font(.custom("Aptos", size: 12))
+                                .foregroundStyle(.white.opacity(0.35))
                                 .multilineTextAlignment(.center)
                                 .padding(.top, 4)
 
+                            // Bigger, bolder Therians text
                             Text("Prohibida para los Therians")
-                                .font(.system(size: 11, weight: .bold, design: .serif))
-                                .foregroundStyle(.white.opacity(0.25))
-                                .tracking(1.5)
-                                .padding(.top, 8)
+                                .font(.custom("Aptos-Bold", size: 18))
+                                .foregroundStyle(.white.opacity(0.5))
+                                .tracking(2)
+                                .padding(.top, 12)
                         }
                         .padding(.horizontal, 32)
 
-                        Spacer(minLength: geo.size.height * 0.06)
+                        Spacer(minLength: geo.size.height * 0.05)
                     }
                     .frame(minHeight: geo.size.height)
                 }
@@ -169,18 +179,18 @@ struct LoginView: View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.system(size: 20))
-                .foregroundStyle(Color(hex: "#8B5CF6"))
+                .foregroundStyle(Color(hex: "#999999"))
                 .frame(width: 40, height: 40)
-                .background(Color.white.opacity(0.08))
+                .background(Color.white.opacity(0.06))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold, design: .serif))
+                    .font(.custom("Aptos-Bold", size: 15))
                     .foregroundStyle(.white)
                 Text(subtitle)
-                    .font(.system(size: 13, weight: .regular, design: .serif))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .font(.custom("Aptos", size: 13))
+                    .foregroundStyle(.white.opacity(0.45))
             }
 
             Spacer()

@@ -99,6 +99,7 @@
 		7B2B46A0409009E74D3A0C66 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02264ADC117D806C909220EF /* EmptyStateView.swift */; };
 		7FDFD45845F8960925F08201 /* PageLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9D49F1A3FE8FEF589B9EB /* PageLayer.swift */; };
 		81AFF6F99CF7056261578465 /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38EA29044F1F8CF7739F12E8 /* AIService.swift */; };
+		82328D63253ED2A3753CF2B2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7C2A93E34717F68FCF1B1B36 /* Assets.xcassets */; };
 		84751150E413F75151EC8BCF /* NewSectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBBCC68234FD8C4C6F24F6D /* NewSectionSheet.swift */; };
 		848018F4DF29A4A84378CF68 /* SectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9281A28EA63661DE00F55746 /* SectionService.swift */; };
 		87345A3E0BC7C0402816FB65 /* HandwritingRenderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F5A579D677957222817B1E7 /* HandwritingRenderView.swift */; };
@@ -138,6 +139,7 @@
 		B5CC8CC1ABC5CB9DA24A3ECB /* WorkspaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 939FD54172C15B580E254C42 /* WorkspaceView.swift */; };
 		B7F847EA8B92A4FE3CD834EA /* PageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 335E170278294E55BF303BE7 /* PageService.swift */; };
 		B881F8F253DCA6ED59BDAAAA /* SubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C607166AA436ADADB11DD79 /* SubscriptionService.swift */; };
+		B9CADAA5FFE2B3CF64F504CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7C2A93E34717F68FCF1B1B36 /* Assets.xcassets */; };
 		BB0F7C4E57932CB15FE9B188 /* AlphabetStudioView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BEAD59C63F4FB11331792B7 /* AlphabetStudioView.swift */; };
 		BDD669BE035FB5EAB71093CF /* BreadcrumbView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7270B267C0368C39459C90C7 /* BreadcrumbView.swift */; };
 		C09B75B98777C3581E2FB177 /* PageSizePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28C41665ACBC27BB46837FC /* PageSizePickerView.swift */; };
@@ -185,6 +187,7 @@
 		114780D6F0CC5139AFAABAE2 /* FolderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderRowView.swift; sourceTree = "<group>"; };
 		115157CBB0D0ED3A43616438 /* ErrorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandler.swift; sourceTree = "<group>"; };
 		16B6FA749E2627104E20849C /* ClaudeAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAPIClient.swift; sourceTree = "<group>"; };
+		18F039298EB1D8D6B0754EAC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		1926FB0FD525B7D1C67D0D99 /* Notation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BEAD59C63F4FB11331792B7 /* AlphabetStudioView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphabetStudioView.swift; sourceTree = "<group>"; };
 		1C1703094376941A847241F9 /* TextEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditorView.swift; sourceTree = "<group>"; };
@@ -216,6 +219,7 @@
 		7270B267C0368C39459C90C7 /* BreadcrumbView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreadcrumbView.swift; sourceTree = "<group>"; };
 		72FCCA4B79D8D312C2B94814 /* AIResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIResultView.swift; sourceTree = "<group>"; };
 		74090CBF9E542E0EC1094F17 /* PageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageCanvasView.swift; sourceTree = "<group>"; };
+		7C2A93E34717F68FCF1B1B36 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7C607166AA436ADADB11DD79 /* SubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionService.swift; sourceTree = "<group>"; };
 		7F4D98927E58AF778BAC8EB7 /* AINotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AINotesView.swift; sourceTree = "<group>"; };
 		7F5A579D677957222817B1E7 /* HandwritingRenderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandwritingRenderView.swift; sourceTree = "<group>"; };
@@ -308,6 +312,13 @@
 			);
 			sourceTree = "<group>";
 		};
+		2F6D94132DA7F33BAD229AC0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		3C5E7E961F31BF0E587B05BE /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -383,10 +394,13 @@
 		6F8C444E36F3269E337C6174 /* Notation */ = {
 			isa = PBXGroup;
 			children = (
+				7C2A93E34717F68FCF1B1B36 /* Assets.xcassets */,
+				18F039298EB1D8D6B0754EAC /* Info.plist */,
 				BFCF649DB138AB04FB29ABE4 /* NotationApp.swift */,
 				8FE41DE0A9C7C241B8F88E80 /* Config */,
 				AE6139DE02E455B44ECF2CDF /* Core */,
 				037A56D5C6E776BA668C5900 /* Features */,
+				2F6D94132DA7F33BAD229AC0 /* Resources */,
 				D6C2DDC205E356574A2B026F /* SharedUI */,
 			);
 			path = Notation;
@@ -528,6 +542,7 @@
 			buildConfigurationList = 48598FEECD6B5FB13E169F5C /* Build configuration list for PBXNativeTarget "Notation_iOS" */;
 			buildPhases = (
 				BE283359E7750D31E7B358AB /* Sources */,
+				B81755C126010904B2A71E19 /* Resources */,
 				121398DFD59F65A345C67117 /* Frameworks */,
 			);
 			buildRules = (
@@ -547,6 +562,7 @@
 			buildConfigurationList = 0F9910E40BBF51A9CC7283F1 /* Build configuration list for PBXNativeTarget "Notation_macOS" */;
 			buildPhases = (
 				255EC4323AB88C942450C25B /* Sources */,
+				20C2BAC2A7865930A879B57A /* Resources */,
 				E0BC336297F1D0387303A635 /* Frameworks */,
 			);
 			buildRules = (
@@ -569,6 +585,16 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					8222D92724629D23DA419CD2 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					CB705FD4AE799B92B460AFD4 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = 9AE291E91526DF276606C143 /* Build configuration list for PBXProject "Notation" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -592,6 +618,25 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		20C2BAC2A7865930A879B57A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B9CADAA5FFE2B3CF64F504CF /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B81755C126010904B2A71E19 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				82328D63253ED2A3753CF2B2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		255EC4323AB88C942450C25B /* Sources */ = {
@@ -838,18 +883,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of slides to generate AI notes";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select slide images to generate AI notes";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = Notation/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -932,19 +971,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of slides to generate AI notes";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select slide images to generate AI notes";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = Notation/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -963,18 +996,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of slides to generate AI notes";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select slide images to generate AI notes";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = Notation/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -994,19 +1021,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGNING_REQUIRED = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of slides to generate AI notes";
-				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Select slide images to generate AI notes";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_FILE = Notation/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
