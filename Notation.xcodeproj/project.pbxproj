@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -122,6 +122,7 @@
 		9EFCF1FB235F5E1F8CD82519 /* FeatureGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72067EB84733AB54BD959353 /* FeatureGate.swift */; };
 		9F44FD717F40CB26773D9402 /* CharacterDrawView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C17E2E20D90537F8655C404F /* CharacterDrawView.swift */; };
 		9FDCC2547CF6C029AFECD4CA /* SectionTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB7C9A6115EC8C12E8E1ED43 /* SectionTabBar.swift */; };
+		A15FDD087DD1D75E0E2857CD /* LocalStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BBECC47332F0C7DC331D3C /* LocalStorageService.swift */; };
 		A1D9595B108C301E4EE737C0 /* NewSectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CBBCC68234FD8C4C6F24F6D /* NewSectionSheet.swift */; };
 		A2868D01569634C23D3AA9E2 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28E40BF8EF24CDA8FC1CFBB1 /* LoadingView.swift */; };
 		A2AAA77E09AD07EECD0EC7F6 /* SectionTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB7C9A6115EC8C12E8E1ED43 /* SectionTabBar.swift */; };
@@ -146,6 +147,7 @@
 		CA9AA14E979A33BD6A346573 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E98A1A91B14A4409E4062F /* Constants.swift */; };
 		CC4F7AB8D6D3ACD8C27BB1DE /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D4327257FD5D859448BF662 /* SettingsViewModel.swift */; };
 		CC98657A240AB36F25356EB4 /* NotebookViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FCC3353C760111D8847B03 /* NotebookViewModel.swift */; };
+		CDFF21DC1E1CDE8DB46B8B6C /* LocalStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BBECC47332F0C7DC331D3C /* LocalStorageService.swift */; };
 		CF20DD23D6F4CC2A41E6D666 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5CA826A571AA24ED6D633C0 /* Profile.swift */; };
 		CF22597120D70BE8F2CB2B6E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E81DF3C7F7FC873E02BFF06 /* SettingsView.swift */; };
 		CFE678FBC6DBF3CCEB16D37E /* NotebookView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 286104F207BD002EA4FE4B83 /* NotebookView.swift */; };
@@ -178,7 +180,7 @@
 /* Begin PBXFileReference section */
 		02264ADC117D806C909220EF /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		0772218DDA9AF0F686F21A26 /* DrawingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingViewModel.swift; sourceTree = "<group>"; };
-		08908D62F48D923049ECE30B /* Notation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Notation.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		08908D62F48D923049ECE30B /* Notation.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Notation.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C6FDDF2EDD7DF8BFA2FF8DC /* FolderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderService.swift; sourceTree = "<group>"; };
 		114780D6F0CC5139AFAABAE2 /* FolderRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderRowView.swift; sourceTree = "<group>"; };
 		115157CBB0D0ED3A43616438 /* ErrorHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorHandler.swift; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 		AAB61CC39A7D9EBF57BDA731 /* DrawingCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingCanvasView.swift; sourceTree = "<group>"; };
 		AD21587E8EEABF609D7F7675 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		AF307928658CE57ECF8C0ADA /* AINotesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AINotesViewModel.swift; sourceTree = "<group>"; };
+		B1BBECC47332F0C7DC331D3C /* LocalStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageService.swift; sourceTree = "<group>"; };
 		B4B84059EDC7E9F28C8B2E55 /* FloatingActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingActionButton.swift; sourceTree = "<group>"; };
 		BAE3A69E9F363BFCB50B7D17 /* NotebookCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotebookCardView.swift; sourceTree = "<group>"; };
 		BBEBCD0A8FE9DD5A5D840648 /* LayerManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerManagerView.swift; sourceTree = "<group>"; };
@@ -324,6 +327,7 @@
 				0C6FDDF2EDD7DF8BFA2FF8DC /* FolderService.swift */,
 				FC080E11BC17966A96987200 /* GlyphService.swift */,
 				D1F48B65CCC16C6081869A8C /* LayerService.swift */,
+				B1BBECC47332F0C7DC331D3C /* LocalStorageService.swift */,
 				649FF576E2EF11C902194869 /* NotebookService.swift */,
 				335E170278294E55BF303BE7 /* PageService.swift */,
 				60CBB15C5207D4F05AC2CA82 /* RealtimeService.swift */,
@@ -579,6 +583,7 @@
 			packageReferences = (
 				EEF9B0000F136FD2217223F8 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -630,6 +635,7 @@
 				66EA8256BAFFB7FA5AECB62F /* LayerManagerView.swift in Sources */,
 				92743301FB7B9242DE615B7B /* LayerService.swift in Sources */,
 				A2868D01569634C23D3AA9E2 /* LoadingView.swift in Sources */,
+				A15FDD087DD1D75E0E2857CD /* LocalStorageService.swift in Sources */,
 				7A0FC7B9A6DF10210CBEE9C8 /* LoginView.swift in Sources */,
 				49CCDCF719BA822514A330FA /* NewFolderSheet.swift in Sources */,
 				F330996C643516E2D1D135DF /* NewNotebookSheet.swift in Sources */,
@@ -719,6 +725,7 @@
 				A75C7FC5CF47A5C7396AE83D /* LayerManagerView.swift in Sources */,
 				0721FC8C5C58EA85081AB562 /* LayerService.swift in Sources */,
 				34DBE4AAE7C1E56A52FE03B8 /* LoadingView.swift in Sources */,
+				CDFF21DC1E1CDE8DB46B8B6C /* LocalStorageService.swift in Sources */,
 				8FD6A5DF1DB7D178DAF5E644 /* LoginView.swift in Sources */,
 				969ED1A168F1AC2FBB7E9C18 /* NewFolderSheet.swift in Sources */,
 				EB840D6AC87DBCCEBAF7E26F /* NewNotebookSheet.swift in Sources */,
@@ -831,12 +838,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGNING_ALLOWED = YES;
-				CODE_SIGNING_REQUIRED = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D3PCCG557J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of slides to generate AI notes";
@@ -850,9 +855,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.sdnotation;
+				PRODUCT_BUNDLE_IDENTIFIER = com.notation.app;
 				PRODUCT_NAME = Notation;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -928,14 +932,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGNING_ALLOWED = YES;
-				CODE_SIGNING_REQUIRED = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D3PCCG557J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of slides to generate AI notes";
@@ -949,9 +950,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.sdnotation;
+				PRODUCT_BUNDLE_IDENTIFIER = com.notation.app;
 				PRODUCT_NAME = Notation;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -963,12 +963,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGNING_ALLOWED = YES;
-				CODE_SIGNING_REQUIRED = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D3PCCG557J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of slides to generate AI notes";
@@ -982,9 +980,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.sdnotation;
+				PRODUCT_BUNDLE_IDENTIFIER = com.notation.app;
 				PRODUCT_NAME = Notation;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;
@@ -997,14 +994,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGNING_ALLOWED = YES;
-				CODE_SIGNING_REQUIRED = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D3PCCG557J;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Take photos of slides to generate AI notes";
@@ -1018,9 +1012,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.sdnotation;
+				PRODUCT_BUNDLE_IDENTIFIER = com.notation.app;
 				PRODUCT_NAME = Notation;
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 6.0;

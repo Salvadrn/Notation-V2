@@ -21,7 +21,6 @@ struct TextEditorView: View {
                     },
                     onReturn: {
                         viewModel.addBlock(after: block.id)
-                        // Focus will move to new block
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             if let newId = viewModel.textBlocks[safe: index + 1]?.id {
                                 focusedBlockId = newId
@@ -52,6 +51,14 @@ struct TextEditorView: View {
         .padding(.horizontal, margin)
         .padding(.top, topPadding)
         .padding(.bottom, margin)
+        .onAppear {
+            // Auto-focus the first block so user can start typing immediately
+            if let firstId = viewModel.textBlocks.first?.id {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    focusedBlockId = firstId
+                }
+            }
+        }
         .onChange(of: focusedBlockId) { _, newValue in
             viewModel.selectedBlockId = newValue
             viewModel.isEditing = newValue != nil
@@ -88,7 +95,7 @@ struct TextBlockView: View {
             case .bullet:
                 Text("\u{2022}")
                     .font(blockFont)
-                    .foregroundStyle(Theme.Colors.textSecondary)
+                    .foregroundStyle(.black)
                     .frame(width: 16)
             case .quote:
                 Rectangle()
@@ -98,10 +105,10 @@ struct TextBlockView: View {
                 EmptyView()
             }
 
-            TextField("", text: $text, axis: .vertical)
+            TextField(blockPlaceholder, text: $text, axis: .vertical)
                 .textFieldStyle(.plain)
                 .font(blockFont)
-                .foregroundStyle(blockColor)
+                .foregroundStyle(.black)
                 .lineLimit(nil)
                 .onChange(of: text) { _, newValue in
                     onTextChange(newValue)
@@ -113,23 +120,27 @@ struct TextBlockView: View {
         .padding(.vertical, blockVerticalPadding)
     }
 
-    private var blockFont: Font {
+    private var blockPlaceholder: String {
         switch block.style {
-        case .heading: return .system(size: 24, weight: .bold, design: .rounded)
-        case .subheading: return .system(size: 18, weight: .semibold, design: .rounded)
-        case .body: return .system(size: 14, weight: .regular)
-        case .bullet: return .system(size: 14, weight: .regular)
-        case .numbered: return .system(size: 14, weight: .regular)
-        case .quote: return .system(size: 14, weight: .regular, design: .serif)
-        case .code: return .system(size: 12, weight: .regular, design: .monospaced)
+        case .heading: return "Heading"
+        case .subheading: return "Subheading"
+        case .body: return "Start typing..."
+        case .bullet: return "List item"
+        case .numbered: return "Numbered item"
+        case .quote: return "Quote"
+        case .code: return "Code"
         }
     }
 
-    private var blockColor: Color {
+    private var blockFont: Font {
         switch block.style {
-        case .quote: return Theme.Colors.textSecondary
-        case .code: return Color(hex: "#D946EF")
-        default: return Theme.Colors.textPrimary
+        case .heading: return .system(size: 24, weight: .bold, design: .serif)
+        case .subheading: return .system(size: 18, weight: .semibold, design: .serif)
+        case .body: return .system(size: 15, weight: .regular, design: .default)
+        case .bullet: return .system(size: 15, weight: .regular, design: .default)
+        case .numbered: return .system(size: 15, weight: .regular, design: .default)
+        case .quote: return .system(size: 15, weight: .regular, design: .serif)
+        case .code: return .system(size: 13, weight: .regular, design: .monospaced)
         }
     }
 
@@ -137,7 +148,7 @@ struct TextBlockView: View {
         switch block.style {
         case .heading: return 8
         case .subheading: return 6
-        default: return 2
+        default: return 3
         }
     }
 }

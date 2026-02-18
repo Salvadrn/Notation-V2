@@ -13,6 +13,8 @@ final class NotebookViewModel: ObservableObject {
 
     private let sectionService: SectionService
     private let pageService: PageService
+    private let localStorage = LocalStorageService.shared
+    private let supabase = SupabaseService.shared
     private let pdfExporter = PDFExporter()
 
     init(notebook: Notebook) {
@@ -20,6 +22,8 @@ final class NotebookViewModel: ObservableObject {
         self.sectionService = SectionService()
         self.pageService = PageService()
     }
+
+    private var isGuest: Bool { supabase.isGuestMode }
 
     var currentPage: Page? {
         guard selectedPageIndex >= 0 && selectedPageIndex < pages.count else { return nil }
@@ -34,17 +38,38 @@ final class NotebookViewModel: ObservableObject {
         isLoading = true
         defer { isLoading = false }
 
-        do {
-            sections = try await sectionService.fetchSections(notebookId: notebook.id)
+        if isGuest {
+            sections = localStorage.fetchSections(notebookId: notebook.id)
             if selectedSection == nil {
                 selectedSection = sections.first
             }
-            if let section = selectedSection {
-                pages = try await pageService.fetchPages(sectionId: section.id)
+            // Auto-create a default section if none exist
+            if sections.isEmpty {
+                let section = localStorage.createSection(notebookId: notebook.id, title: "Section 1")
+                sections = [section]
+                selectedSection = section
             }
-        } catch {
-            ErrorHandler.shared.handle(error, title: "Failed to load notebook") {
-                await self.loadNotebook()
+            if let section = selectedSection {
+                pages = localStorage.fetchPages(sectionId: section.id)
+                // Auto-create first page
+                if pages.isEmpty {
+                    let page = localStorage.createPage(sectionId: section.id, sortOrder: 0)
+                    pages = [page]
+                }
+            }
+        } else {
+            do {
+                sections = try await sectionService.fetchSections(notebookId: notebook.id)
+                if selectedSection == nil {
+                    selectedSection = sections.first
+                }
+                if let section = selectedSection {
+                    pages = try await pageService.fetchPages(sectionId: section.id)
+                }
+            } catch {
+                ErrorHandler.shared.handle(error, title: "Failed to load notebook") {
+                    await self.loadNotebook()
+                }
             }
         }
     }
@@ -52,55 +77,79 @@ final class NotebookViewModel: ObservableObject {
     func selectSection(_ section: Section) async {
         selectedSection = section
         selectedPageIndex = 0
-        do {
-            pages = try await pageService.fetchPages(sectionId: section.id)
-        } catch {
-            ErrorHandler.shared.handle(error)
+        if isGuest {
+            pages = localStorage.fetchPages(sectionId: section.id)
+            if pages.isEmpty {
+                let page = localStorage.createPage(sectionId: section.id, sortOrder: 0)
+                pages = [page]
+            }
+        } else {
+            do {
+                pages = try await pageService.fetchPages(sectionId: section.id)
+            } catch {
+                ErrorHandler.shared.handle(error)
+            }
         }
     }
 
     // MARK: - Section Operations
 
     func createSection(title: String) async {
-        do {
-            let section = try await sectionService.createSection(
-                notebookId: notebook.id,
-                title: title
-            )
+        if isGuest {
+            let section = localStorage.createSection(notebookId: notebook.id, title: title)
             sections.append(section)
             await selectSection(section)
-        } catch {
-            ErrorHandler.shared.handle(error)
+        } else {
+            do {
+                let section = try await sectionService.createSection(
+                    notebookId: notebook.id,
+                    title: title
+                )
+                sections.append(section)
+                await selectSection(section)
+            } catch {
+                ErrorHandler.shared.handle(error)
+            }
         }
     }
 
     func renameSection(_ section: Section, to title: String) async {
         var updated = section
         updated.title = title
-        do {
-            try await sectionService.updateSection(updated)
-            if let index = sections.firstIndex(where: { $0.id == section.id }) {
-                sections[index] = updated
+        if isGuest {
+            localStorage.updateSection(updated)
+        } else {
+            do {
+                try await sectionService.updateSection(updated)
+            } catch {
+                ErrorHandler.shared.handle(error)
+                return
             }
-        } catch {
-            ErrorHandler.shared.handle(error)
+        }
+        if let index = sections.firstIndex(where: { $0.id == section.id }) {
+            sections[index] = updated
         }
     }
 
     func deleteSection(_ section: Section) async {
-        do {
-            try await sectionService.deleteSection(id: section.id)
-            sections.removeAll { $0.id == section.id }
-            if selectedSection?.id == section.id {
-                selectedSection = sections.first
-                if let next = selectedSection {
-                    await selectSection(next)
-                } else {
-                    pages = []
-                }
+        if isGuest {
+            localStorage.deleteSection(id: section.id)
+        } else {
+            do {
+                try await sectionService.deleteSection(id: section.id)
+            } catch {
+                ErrorHandler.shared.handle(error)
+                return
             }
-        } catch {
-            ErrorHandler.shared.handle(error)
+        }
+        sections.removeAll { $0.id == section.id }
+        if selectedSection?.id == section.id {
+            selectedSection = sections.first
+            if let next = selectedSection {
+                await selectSection(next)
+            } else {
+                pages = []
+            }
         }
     }
 
@@ -108,27 +157,38 @@ final class NotebookViewModel: ObservableObject {
 
     func addPage() async {
         guard let section = selectedSection else { return }
-        do {
-            let page = try await pageService.createPage(
-                sectionId: section.id,
-                sortOrder: pages.count
-            )
+        if isGuest {
+            let page = localStorage.createPage(sectionId: section.id, sortOrder: pages.count)
             pages.append(page)
             selectedPageIndex = pages.count - 1
-        } catch {
-            ErrorHandler.shared.handle(error)
+        } else {
+            do {
+                let page = try await pageService.createPage(
+                    sectionId: section.id,
+                    sortOrder: pages.count
+                )
+                pages.append(page)
+                selectedPageIndex = pages.count - 1
+            } catch {
+                ErrorHandler.shared.handle(error)
+            }
         }
     }
 
     func deletePage(_ page: Page) async {
-        do {
-            try await pageService.deletePage(id: page.id)
-            pages.removeAll { $0.id == page.id }
-            if selectedPageIndex >= pages.count {
-                selectedPageIndex = max(0, pages.count - 1)
+        if isGuest {
+            localStorage.deletePage(id: page.id)
+        } else {
+            do {
+                try await pageService.deletePage(id: page.id)
+            } catch {
+                ErrorHandler.shared.handle(error)
+                return
             }
-        } catch {
-            ErrorHandler.shared.handle(error)
+        }
+        pages.removeAll { $0.id == page.id }
+        if selectedPageIndex >= pages.count {
+            selectedPageIndex = max(0, pages.count - 1)
         }
     }
 

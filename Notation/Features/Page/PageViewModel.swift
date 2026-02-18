@@ -14,17 +14,28 @@ final class PageViewModel: ObservableObject {
 
     private let pageService: PageService
     private let layerService: LayerService
+    private let localStorage = LocalStorageService.shared
+    private let supabase = SupabaseService.shared
     let onSave: (Page) -> Void
 
     private var autosaveTask: Task<Void, Never>?
 
     init(page: Page, onSave: @escaping (Page) -> Void) {
         self.page = page
-        self.textBlocks = page.textContent.blocks
         self.onSave = onSave
         self.pageService = PageService()
         self.layerService = LayerService()
+
+        // Initialize text blocks from page content
+        if page.textContent.blocks.isEmpty {
+            // Always start with one empty body block so user can type immediately
+            self.textBlocks = [TextBlock.paragraph()]
+        } else {
+            self.textBlocks = page.textContent.blocks
+        }
     }
+
+    private var isGuest: Bool { supabase.isGuestMode }
 
     var textLayer: PageLayer? {
         layers.first { $0.layerType == .text }
@@ -41,10 +52,14 @@ final class PageViewModel: ObservableObject {
     // MARK: - Load
 
     func loadLayers() async {
-        do {
-            layers = try await layerService.ensureDefaultLayers(pageId: page.id)
-        } catch {
-            ErrorHandler.shared.handle(error)
+        if isGuest {
+            layers = localStorage.ensureDefaultLayers(pageId: page.id)
+        } else {
+            do {
+                layers = try await layerService.ensureDefaultLayers(pageId: page.id)
+            } catch {
+                ErrorHandler.shared.handle(error)
+            }
         }
     }
 
@@ -106,14 +121,19 @@ final class PageViewModel: ObservableObject {
     // MARK: - Layer Visibility
 
     func toggleLayerVisibility(_ layer: PageLayer) async {
-        do {
-            let newVisibility = !layer.isVisible
-            try await layerService.toggleVisibility(layerId: layer.id, isVisible: newVisibility)
-            if let index = layers.firstIndex(where: { $0.id == layer.id }) {
-                layers[index].isVisible = newVisibility
+        let newVisibility = !layer.isVisible
+        if isGuest {
+            localStorage.toggleLayerVisibility(layerId: layer.id, isVisible: newVisibility)
+        } else {
+            do {
+                try await layerService.toggleVisibility(layerId: layer.id, isVisible: newVisibility)
+            } catch {
+                ErrorHandler.shared.handle(error)
+                return
             }
-        } catch {
-            ErrorHandler.shared.handle(error)
+        }
+        if let index = layers.firstIndex(where: { $0.id == layer.id }) {
+            layers[index].isVisible = newVisibility
         }
     }
 
@@ -124,11 +144,16 @@ final class PageViewModel: ObservableObject {
         defer { isSaving = false }
 
         page.textContent = TextContent(blocks: textBlocks)
-        do {
-            try await pageService.updatePage(page)
+        if isGuest {
+            localStorage.updatePage(page)
             onSave(page)
-        } catch {
-            ErrorHandler.shared.handle(error)
+        } else {
+            do {
+                try await pageService.updatePage(page)
+                onSave(page)
+            } catch {
+                ErrorHandler.shared.handle(error)
+            }
         }
     }
 
@@ -150,10 +175,14 @@ final class PageViewModel: ObservableObject {
 
     func updateDrawingData(_ data: Data) async {
         guard let layer = drawingLayer else { return }
-        do {
-            try await layerService.updateDrawingData(layerId: layer.id, data: data)
-        } catch {
-            ErrorHandler.shared.handle(error)
+        if isGuest {
+            localStorage.updateDrawingData(layerId: layer.id, data: data)
+        } else {
+            do {
+                try await layerService.updateDrawingData(layerId: layer.id, data: data)
+            } catch {
+                ErrorHandler.shared.handle(error)
+            }
         }
     }
 }

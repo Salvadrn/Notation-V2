@@ -24,12 +24,12 @@ enum Theme {
         static let cardBackground = Color(light: .white, dark: Color(hex: "#2C2C2E"))
     }
 
-    // MARK: - Typography
+    // MARK: - Typography (formal serif for titles, default for body)
     enum Typography {
-        static let largeTitle = Font.system(size: 34, weight: .bold, design: .rounded)
-        static let title = Font.system(size: 28, weight: .bold, design: .rounded)
-        static let title2 = Font.system(size: 22, weight: .semibold, design: .rounded)
-        static let title3 = Font.system(size: 20, weight: .semibold, design: .rounded)
+        static let largeTitle = Font.system(size: 34, weight: .bold, design: .serif)
+        static let title = Font.system(size: 28, weight: .bold, design: .serif)
+        static let title2 = Font.system(size: 22, weight: .semibold, design: .serif)
+        static let title3 = Font.system(size: 20, weight: .semibold, design: .serif)
         static let headline = Font.system(size: 17, weight: .semibold, design: .default)
         static let body = Font.system(size: 17, weight: .regular, design: .default)
         static let callout = Font.system(size: 16, weight: .regular, design: .default)
