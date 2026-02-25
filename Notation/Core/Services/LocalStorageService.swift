@@ -9,7 +9,9 @@ final class LocalStorageService: ObservableObject {
     private let decoder: JSONDecoder
 
     private var baseURL: URL {
-        let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        guard let docs = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            fatalError("Documents directory unavailable")
+        }
         let dir = docs.appendingPathComponent("NotationLocal", isDirectory: true)
         try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
@@ -244,15 +246,60 @@ final class LocalStorageService: ObservableObject {
         save(layers, to: layersURL)
     }
 
+    // MARK: - Glyphs
+
+    private var glyphsURL: URL { baseURL.appendingPathComponent("glyphs.json") }
+
+    func fetchAllGlyphs() -> [String: [Glyph]] {
+        let all: [Glyph] = load(from: glyphsURL) ?? []
+        var grouped: [String: [Glyph]] = [:]
+        for glyph in all {
+            grouped[glyph.character, default: []].append(glyph)
+        }
+        return grouped
+    }
+
+    func fetchGlyphs(for character: String) -> [Glyph] {
+        let all: [Glyph] = load(from: glyphsURL) ?? []
+        return all.filter { $0.character == character }.sorted { $0.variationIndex < $1.variationIndex }
+    }
+
+    func saveGlyph(_ glyph: Glyph) {
+        var all: [Glyph] = load(from: glyphsURL) ?? []
+        all.append(glyph)
+        save(all, to: glyphsURL)
+    }
+
+    func deleteGlyph(id: UUID) {
+        var all: [Glyph] = load(from: glyphsURL) ?? []
+        all.removeAll { $0.id == id }
+        save(all, to: glyphsURL)
+    }
+
     // MARK: - Generic JSON Helpers
 
     private func load<T: Decodable>(from url: URL) -> T? {
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        return try? decoder.decode(T.self, from: data)
+        let data: Data
+        do {
+            data = try Data(contentsOf: url)
+        } catch {
+            // File doesn't exist yet — normal for first launch
+            return nil
+        }
+        do {
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            print("[LocalStorage] Failed to decode \(url.lastPathComponent): \(error.localizedDescription)")
+            return nil
+        }
     }
 
     private func save<T: Encodable>(_ value: T, to url: URL) {
-        guard let data = try? encoder.encode(value) else { return }
-        try? data.write(to: url, options: .atomic)
+        do {
+            let data = try encoder.encode(value)
+            try data.write(to: url, options: .atomic)
+        } catch {
+            print("[LocalStorage] Failed to save \(url.lastPathComponent): \(error.localizedDescription)")
+        }
     }
 }

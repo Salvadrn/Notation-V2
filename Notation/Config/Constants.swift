@@ -21,21 +21,29 @@ enum Constants {
         static let maxConversionsPerMonth = 5
         static let maxAIUsesPerMonth = 0
         static let maxPagesPerNotebook = 50
+        static let initialTokens = 0
     }
 
-    // MARK: - Pro Tier Limits
+    // MARK: - Pro Tier
+    // Pro: $4.99/month, includes 500 tokens (~50 AI generations)
+    // Extra tokens sold at ~45% margin
     enum ProTier {
-        static let maxConversionsPerMonth = 50
-        static let maxAIUsesPerMonth = -1 // unlimited
-        static let maxPagesPerNotebook = -1 // unlimited
+        static let maxConversionsPerMonth = -1
+        static let maxAIUsesPerMonth = -1
+        static let maxPagesPerNotebook = -1
+        static let includedMonthlyTokens = 500
     }
 
     // MARK: - Token Pricing
+    // 10 tokens = 1 AI generation (~$0.03 API cost)
+    // Pricing with ~45% margin:
+    //   100 tokens → $0.99  |  500 tokens → $2.99
+    //   1000 tokens → $4.99  |  2500 tokens → $9.99
     enum Tokens {
         static let costPerAIGeneration = 10
         static let costPerHandwritingConversion = 2
-        static let starterPackAmount = 100
-        // Prices set in App Store Connect
+        static let starterPackAmount = 0
+        static let proMonthlyAllowance = 500
     }
 
     // MARK: - StoreKit Product IDs
@@ -45,6 +53,7 @@ enum Constants {
         static let tokenPack100 = "com.sdnotation.tokens.100"
         static let tokenPack500 = "com.sdnotation.tokens.500"
         static let tokenPack1000 = "com.sdnotation.tokens.1000"
+        static let tokenPack2500 = "com.sdnotation.tokens.2500"
     }
 
     // MARK: - Autosave
@@ -67,6 +76,11 @@ enum Constants {
         static let wordSpacing: CGFloat = 14
         static let lineHeight: CGFloat = 60
         static let maxVariations = 5
+    }
+
+    // MARK: - Pro Banner
+    enum PromoBanner {
+        static let showEveryNMinutes: TimeInterval = 10 * 60
     }
 
     // MARK: - Alphabet Characters

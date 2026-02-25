@@ -10,24 +10,32 @@ final class SupabaseService: ObservableObject {
     @Published var currentUserId: UUID?
     @Published var isAuthenticated = false
     @Published var isGuestMode = false
+    @Published var hasCompletedOnboarding = false
 
     private static let guestModeKey = "notation_is_guest_mode"
+    private static let onboardingKey = "notation_has_completed_onboarding"
 
     private init() {
         let url = AppConfig.supabaseURL
         let key = AppConfig.supabaseAnonKey
         self.client = SupabaseClient(supabaseURL: url, supabaseKey: key)
 
-        // Restore guest mode if previously set
-        if UserDefaults.standard.bool(forKey: Self.guestModeKey) {
-            self.isGuestMode = true
-            self.isAuthenticated = true
-            self.currentUserId = LocalStorageService.shared.guestUserId
-        }
+        // Restore onboarding state
+        self.hasCompletedOnboarding = UserDefaults.standard.bool(forKey: Self.onboardingKey)
+
+        // Don't auto-restore guest mode — always show LoginView on fresh launch
+        // unless there's a real Supabase session. Guest mode activates when user
+        // taps "Start Writing" on the login screen.
+        // Local data is preserved regardless.
     }
 
     var isSupabaseConfigured: Bool {
         !AppConfig.supabaseAnonKey.hasPrefix("YOUR_")
+    }
+
+    func completeOnboarding() {
+        hasCompletedOnboarding = true
+        UserDefaults.standard.set(true, forKey: Self.onboardingKey)
     }
 
     func restoreSession() async {
@@ -35,7 +43,20 @@ final class SupabaseService: ObservableObject {
         guard isSupabaseConfigured else { return }
 
         do {
-            let session = try await client.auth.session
+            let session = try await withThrowingTaskGroup(of: Session.self) { group in
+                group.addTask {
+                    try await self.client.auth.session
+                }
+                group.addTask {
+                    try await Task.sleep(for: .seconds(5))
+                    throw CancellationError()
+                }
+                guard let result = try await group.next() else {
+                    throw CancellationError()
+                }
+                group.cancelAll()
+                return result
+            }
             self.currentUserId = session.user.id
             self.isAuthenticated = true
         } catch {
@@ -70,6 +91,7 @@ final class SupabaseService: ObservableObject {
         isAuthenticated = true
         currentUserId = LocalStorageService.shared.guestUserId
         UserDefaults.standard.set(true, forKey: Self.guestModeKey)
+        completeOnboarding()
     }
 
     func exitGuestMode() {

@@ -11,6 +11,8 @@ final class PageViewModel: ObservableObject {
     @Published var showLayerManager = false
     @Published var showSizePicker = false
     @Published var isSaving = false
+    @Published var showHandwritingResult = false
+    @Published var isConvertingHandwriting = false
 
     private let pageService: PageService
     private let layerService: LayerService

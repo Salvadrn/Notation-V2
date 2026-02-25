@@ -1,5 +1,8 @@
 import SwiftUI
 import Combine
+#if os(iOS)
+import UIKit
+#endif
 
 @MainActor
 final class NotebookViewModel: ObservableObject {
@@ -10,6 +13,7 @@ final class NotebookViewModel: ObservableObject {
     @Published var selectedPageIndex: Int = 0
     @Published var isLoading = false
     @Published var showNewSection = false
+    @Published var showTemplateSheet = false
 
     private let sectionService: SectionService
     private let pageService: PageService
@@ -155,18 +159,28 @@ final class NotebookViewModel: ObservableObject {
 
     // MARK: - Page Operations
 
-    func addPage() async {
+    func addPage(template: PageTemplate = .blank) async {
         guard let section = selectedSection else { return }
         if isGuest {
-            let page = localStorage.createPage(sectionId: section.id, sortOrder: pages.count)
+            var page = localStorage.createPage(sectionId: section.id, sortOrder: pages.count)
+            if template != .blank {
+                page.textContent = template.textContent
+                page.title = template.rawValue
+                localStorage.updatePage(page)
+            }
             pages.append(page)
             selectedPageIndex = pages.count - 1
         } else {
             do {
-                let page = try await pageService.createPage(
+                var page = try await pageService.createPage(
                     sectionId: section.id,
                     sortOrder: pages.count
                 )
+                if template != .blank {
+                    page.textContent = template.textContent
+                    page.title = template.rawValue
+                    try await pageService.updatePage(page)
+                }
                 pages.append(page)
                 selectedPageIndex = pages.count - 1
             } catch {
@@ -203,6 +217,60 @@ final class NotebookViewModel: ObservableObject {
             selectedPageIndex -= 1
         }
     }
+
+    // MARK: - Handwriting Actions
+
+    #if os(iOS)
+    func handleHandwritingAction(_ action: HandwritingAction, image: UIImage) async {
+        switch action {
+        case .insertNewPage:
+            // Create a new page and set the handwriting image as a text block placeholder
+            await addPage()
+            // The image data will be stored — for now we note it in the page title
+            if var page = currentPage {
+                page.title = "Handwriting"
+                if isGuest {
+                    localStorage.updatePage(page)
+                } else {
+                    try? await pageService.updatePage(page)
+                }
+                if let idx = pages.firstIndex(where: { $0.id == page.id }) {
+                    pages[idx] = page
+                }
+            }
+
+        case .replaceInCurrentPage:
+            // Replace current page text blocks — mark page as handwriting-converted
+            guard var page = currentPage else { return }
+            page.title = "Handwriting"
+            // Clear existing text content since it's being replaced by the handwriting image
+            page.textContent = TextContent(blocks: [TextBlock(id: UUID(), text: "[Handwriting converted]", style: .body)])
+            if isGuest {
+                localStorage.updatePage(page)
+            } else {
+                try? await pageService.updatePage(page)
+            }
+            if let idx = pages.firstIndex(where: { $0.id == page.id }) {
+                pages[idx] = page
+            }
+
+        case .insertInCurrentPage:
+            // Append a marker to the current page's text blocks
+            guard var page = currentPage else { return }
+            var blocks = page.textContent.blocks
+            blocks.append(TextBlock(id: UUID(), text: "[Handwriting inserted]", style: .body))
+            page.textContent = TextContent(blocks: blocks)
+            if isGuest {
+                localStorage.updatePage(page)
+            } else {
+                try? await pageService.updatePage(page)
+            }
+            if let idx = pages.firstIndex(where: { $0.id == page.id }) {
+                pages[idx] = page
+            }
+        }
+    }
+    #endif
 
     // MARK: - Export
 

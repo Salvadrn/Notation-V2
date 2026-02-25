@@ -6,6 +6,11 @@ private struct IncrementTokenParams: Encodable {
     let amount_input: Int
 }
 
+private struct DeductTokenParams: Encodable {
+    let user_id_input: String
+    let amount_input: Int
+}
+
 @MainActor
 final class TokenService {
     private let supabase: SupabaseService
@@ -43,7 +48,13 @@ final class TokenService {
     func addTokens(amount: Int, reason: String, referenceId: String? = nil) async throws {
         let uid = try userId
 
-        // Record transaction
+        // Update balance first
+        try await supabase.client.rpc(
+            "increment_token_balance",
+            params: IncrementTokenParams(user_id_input: uid.uuidString, amount_input: amount)
+        ).execute()
+
+        // Record transaction journal entry
         let transaction = TokenTransaction.credit(
             userId: uid,
             amount: amount,
@@ -51,27 +62,23 @@ final class TokenService {
             referenceId: referenceId
         )
 
-        try await supabase.client
+        try? await supabase.client
             .from("token_transactions")
             .insert(transaction)
             .execute()
-
-        // Update balance
-        try await supabase.client.rpc(
-            "increment_token_balance",
-            params: IncrementTokenParams(user_id_input: uid.uuidString, amount_input: amount)
-        ).execute()
     }
 
     func deductTokens(amount: Int, reason: String, referenceId: String? = nil) async throws {
         let uid = try userId
-        let balance = try await fetchBalance()
 
-        guard balance >= amount else {
-            throw NotationError.insufficientTokens
-        }
+        // Use RPC to atomically check and deduct balance in one DB call
+        // This prevents race conditions where two requests check balance simultaneously
+        try await supabase.client.rpc(
+            "deduct_token_balance",
+            params: DeductTokenParams(user_id_input: uid.uuidString, amount_input: amount)
+        ).execute()
 
-        // Record transaction
+        // Record transaction journal entry
         let transaction = TokenTransaction.debit(
             userId: uid,
             amount: amount,
@@ -79,16 +86,10 @@ final class TokenService {
             referenceId: referenceId
         )
 
-        try await supabase.client
+        try? await supabase.client
             .from("token_transactions")
             .insert(transaction)
             .execute()
-
-        // Update balance
-        try await supabase.client.rpc(
-            "increment_token_balance",
-            params: IncrementTokenParams(user_id_input: uid.uuidString, amount_input: -amount)
-        ).execute()
     }
 
     func fetchTransactionHistory() async throws -> [TokenTransaction] {

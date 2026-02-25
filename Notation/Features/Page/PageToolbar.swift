@@ -88,7 +88,7 @@ struct PageToolbar: View {
             }
         } label: {
             Text(label)
-                .font(.system(size: 12, weight: isActive ? .bold : .regular))
+                .font(.custom(isActive ? "Aptos-Bold" : "Aptos", size: 12))
                 .foregroundStyle(isActive ? Theme.Colors.primaryFallback : Theme.Colors.textSecondary)
                 .frame(width: 28, height: 28)
                 .background(isActive ? Theme.Colors.primaryFallback.opacity(0.1) : Color.clear)

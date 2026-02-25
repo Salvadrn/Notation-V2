@@ -22,7 +22,7 @@ struct CharacterDrawView: View {
                         .foregroundStyle(Theme.Colors.textSecondary)
 
                     Text(String(character))
-                        .font(.system(size: 60, weight: .light))
+                        .font(.custom("Aptos-Light", size: 60))
                         .foregroundStyle(Theme.Colors.textTertiary)
                 }
 

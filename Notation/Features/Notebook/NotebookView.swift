@@ -1,8 +1,13 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 struct NotebookView: View {
     @StateObject private var viewModel: NotebookViewModel
+    @StateObject private var appearance = AppearanceManager.shared
     @State private var showExportSheet = false
+    @State private var showPageExportSheet = false
     @State private var showPageNav = false
 
     init(notebook: Notebook) {
@@ -29,7 +34,7 @@ struct NotebookView: View {
 
             Divider()
 
-            // Page content
+            // Page content — swipeable
             if viewModel.pages.isEmpty {
                 VStack(spacing: Theme.Spacing.lg) {
                     EmptyStateView(
@@ -51,15 +56,8 @@ struct NotebookView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let page = viewModel.currentPage {
-                PageView(
-                    page: page,
-                    onSave: { updated in
-                        if let index = viewModel.pages.firstIndex(where: { $0.id == updated.id }) {
-                            viewModel.pages[index] = updated
-                        }
-                    }
-                )
+            } else {
+                pageSwipeContent
             }
         }
         .navigationTitle(viewModel.notebook.title)
@@ -68,6 +66,9 @@ struct NotebookView: View {
                 // Page navigation
                 HStack(spacing: Theme.Spacing.sm) {
                     Button {
+                        #if os(iOS)
+                        HapticService.selection()
+                        #endif
                         viewModel.goToPreviousPage()
                     } label: {
                         Image(systemName: "chevron.left")
@@ -80,6 +81,9 @@ struct NotebookView: View {
                         .monospacedDigit()
 
                     Button {
+                        #if os(iOS)
+                        HapticService.selection()
+                        #endif
                         viewModel.goToNextPage()
                     } label: {
                         Image(systemName: "chevron.right")
@@ -87,8 +91,21 @@ struct NotebookView: View {
                     .disabled(viewModel.selectedPageIndex >= viewModel.pageCount - 1)
                 }
 
-                Button {
-                    Task { await viewModel.addPage() }
+                Menu {
+                    Button {
+                        #if os(iOS)
+                        HapticService.medium()
+                        #endif
+                        Task { await viewModel.addPage() }
+                    } label: {
+                        Label("Blank Page", systemImage: "doc")
+                    }
+
+                    Button {
+                        viewModel.showTemplateSheet = true
+                    } label: {
+                        Label("From Template...", systemImage: "doc.text")
+                    }
                 } label: {
                     Image(systemName: "doc.badge.plus")
                 }
@@ -107,10 +124,11 @@ struct NotebookView: View {
                     }
 
                     Button {
-                        // Export current page
+                        showPageExportSheet = true
                     } label: {
                         Label("Export Page PDF", systemImage: "doc.richtext")
                     }
+                    .disabled(viewModel.currentPage == nil)
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
@@ -128,9 +146,132 @@ struct NotebookView: View {
             )
             .inspectorColumnWidth(min: 150, ideal: 200, max: 250)
         }
+        .sheet(isPresented: $viewModel.showTemplateSheet) {
+            PageTemplateSheet { template in
+                Task { await viewModel.addPage(template: template) }
+            }
+        }
+        #if os(iOS)
+        .sheet(isPresented: $showExportSheet) {
+            let pdfData = viewModel.exportNotebookPDF()
+            ShareSheet(items: [pdfData])
+        }
+        .sheet(isPresented: $showPageExportSheet) {
+            if let pdfData = viewModel.exportCurrentPagePDF() {
+                ShareSheet(items: [pdfData])
+            }
+        }
+        #endif
+        .onChange(of: viewModel.selectedPageIndex) { _, newIndex in
+            #if os(iOS)
+            HapticService.selection()
+            #endif
+            // Auto-create page when swiping to the "new page" placeholder
+            if newIndex == viewModel.pages.count {
+                Task {
+                    #if os(iOS)
+                    HapticService.medium()
+                    #endif
+                    await viewModel.addPage()
+                }
+            }
+        }
         .onFirstAppear {
             await viewModel.loadNotebook()
         }
         .withErrorHandling()
     }
+
+    // MARK: - Page Swipe Content
+
+    @ViewBuilder
+    private var pageSwipeContent: some View {
+        let newPageIndex = viewModel.pages.count
+
+        if appearance.pageSwipeDirection == .vertical {
+            // Vertical paging using ScrollView
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVStack(spacing: 0) {
+                    ForEach(Array(viewModel.pages.enumerated()), id: \.element.id) { index, page in
+                        makePageView(page: page)
+                            .containerRelativeFrame(.vertical)
+                            .id(index)
+                    }
+
+                    // "New Page" placeholder at the end
+                    newPagePlaceholder
+                        .containerRelativeFrame(.vertical)
+                        .id(newPageIndex)
+                }
+                .scrollTargetLayout()
+            }
+            .scrollTargetBehavior(.paging)
+            .scrollPosition(id: Binding(
+                get: { viewModel.selectedPageIndex as Int? },
+                set: { newVal in
+                    if let val = newVal {
+                        viewModel.selectedPageIndex = val
+                    }
+                }
+            ))
+        } else {
+            // Horizontal paging using TabView
+            TabView(selection: $viewModel.selectedPageIndex) {
+                ForEach(Array(viewModel.pages.enumerated()), id: \.element.id) { index, page in
+                    makePageView(page: page)
+                        .tag(index)
+                }
+
+                // "New Page" placeholder at the end
+                newPagePlaceholder
+                    .tag(newPageIndex)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+    }
+
+    private func makePageView(page: Page) -> PageView {
+        var pageView = PageView(
+            page: page,
+            onSave: { updated in
+                if let idx = viewModel.pages.firstIndex(where: { $0.id == updated.id }) {
+                    viewModel.pages[idx] = updated
+                }
+            }
+        )
+        #if os(iOS)
+        pageView.onHandwritingAction = { action, image in
+            Task { await viewModel.handleHandwritingAction(action, image: image) }
+        }
+        #endif
+        return pageView
+    }
+
+    private var newPagePlaceholder: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "plus.circle.fill")
+                .font(.system(size: 48))
+                .foregroundStyle(Theme.Colors.primaryFallback.opacity(0.4))
+
+            Text("New Page")
+                .font(.custom("Aptos-Bold", size: 18))
+                .foregroundStyle(Theme.Colors.textSecondary)
+
+            Text("Swipe here to create a new page")
+                .font(.custom("Aptos", size: 14))
+                .foregroundStyle(Theme.Colors.textTertiary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.Colors.backgroundTertiary)
+    }
 }
+
+#if os(iOS)
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+#endif

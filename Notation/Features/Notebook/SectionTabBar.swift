@@ -21,7 +21,7 @@ struct SectionTabBar: View {
                 // Add section button
                 Button(action: onAdd) {
                     Image(systemName: "plus")
-                        .font(.caption)
+                        .font(Theme.Typography.caption)
                         .foregroundStyle(Theme.Colors.textTertiary)
                         .padding(.horizontal, Theme.Spacing.md)
                         .padding(.vertical, Theme.Spacing.sm)

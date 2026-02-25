@@ -18,7 +18,7 @@ struct BreadcrumbView: View {
 
                     ForEach(Array(folders.enumerated()), id: \.element.id) { index, folder in
                         Image(systemName: "chevron.right")
-                            .font(.caption2)
+                            .font(.custom("Aptos", size: 11))
                             .foregroundStyle(Theme.Colors.textTertiary)
 
                         if index == folders.count - 1 {

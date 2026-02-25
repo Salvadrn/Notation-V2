@@ -12,12 +12,17 @@ struct PresenceUser: Codable, Sendable {
 final class RealtimeService: ObservableObject {
     private let supabase: SupabaseService
     private var channels: [String: RealtimeChannelV2] = [:]
+    private var channelTasks: [String: [Task<Void, Never>]] = [:]
 
     @Published var activeCollaborators: [String: [PresenceUser]] = [:]
     @Published var isConnected = false
 
     init(supabase: SupabaseService = .shared) {
         self.supabase = supabase
+    }
+
+    private var currentUserId: String {
+        supabase.currentUserId?.uuidString ?? "anonymous"
     }
 
     // MARK: - Notebook Channel
@@ -56,18 +61,23 @@ final class RealtimeService: ObservableObject {
         // Track presence
         try await channel.track(
             PresenceUser(
-                userId: supabase.currentUserId?.uuidString ?? "",
+                userId: currentUserId,
                 userName: userName,
                 pageId: nil
             )
         )
 
         channels[channelName] = channel
-        isConnected = true
+
+        // Cancel any existing tasks for this channel
+        channelTasks[channelName]?.forEach { $0.cancel() }
+
+        var tasks: [Task<Void, Never>] = []
 
         // Handle page changes
-        Task { @Sendable in
+        let pageTask = Task { @Sendable in
             for await change in pageChanges {
+                guard !Task.isCancelled else { break }
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .iso8601
                 switch change {
@@ -84,10 +94,12 @@ final class RealtimeService: ObservableObject {
                 }
             }
         }
+        tasks.append(pageTask)
 
         // Handle layer changes
-        Task { @Sendable in
+        let layerTask = Task { @Sendable in
             for await change in layerChanges {
+                guard !Task.isCancelled else { break }
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .iso8601
                 switch change {
@@ -104,36 +116,47 @@ final class RealtimeService: ObservableObject {
                 }
             }
         }
+        tasks.append(layerTask)
 
         // Handle presence
-        Task { @Sendable [weak self] in
+        let presenceTask = Task { @Sendable [weak self] in
             for await action in presenceChanges {
+                guard !Task.isCancelled else { break }
                 let joins = (try? action.decodeJoins(as: PresenceUser.self)) ?? []
                 let leaves = (try? action.decodeLeaves(as: PresenceUser.self)) ?? []
                 await MainActor.run {
                     guard let self else { return }
                     var current = self.activeCollaborators[channelName] ?? []
-                    // Add joins
                     for user in joins {
                         if !current.contains(where: { $0.userId == user.userId }) {
                             current.append(user)
                         }
                     }
-                    // Remove leaves
                     let leaveIds = Set(leaves.map(\.userId))
                     current.removeAll { leaveIds.contains($0.userId) }
                     self.activeCollaborators[channelName] = current
                 }
             }
         }
+        tasks.append(presenceTask)
+
+        channelTasks[channelName] = tasks
+        isConnected = true
     }
 
     func leaveNotebookChannel(notebookId: UUID) async {
         let channelName = "\(Constants.Realtime.channelPrefix)\(notebookId.uuidString)"
+
+        // Cancel listener tasks first
+        channelTasks[channelName]?.forEach { $0.cancel() }
+        channelTasks.removeValue(forKey: channelName)
+
         if let channel = channels[channelName] {
             await channel.unsubscribe()
             channels.removeValue(forKey: channelName)
         }
+
+        activeCollaborators.removeValue(forKey: channelName)
 
         if channels.isEmpty {
             isConnected = false
@@ -153,7 +176,7 @@ final class RealtimeService: ObservableObject {
 
         try await channel.track(
             PresenceUser(
-                userId: supabase.currentUserId?.uuidString ?? "",
+                userId: currentUserId,
                 userName: userName,
                 pageId: pageId?.uuidString
             )
@@ -161,6 +184,12 @@ final class RealtimeService: ObservableObject {
     }
 
     func disconnectAll() async {
+        // Cancel all listener tasks
+        for (_, tasks) in channelTasks {
+            tasks.forEach { $0.cancel() }
+        }
+        channelTasks.removeAll()
+
         for (_, channel) in channels {
             await channel.unsubscribe()
         }

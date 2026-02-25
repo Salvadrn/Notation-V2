@@ -46,7 +46,7 @@ struct ToastView: View {
                     withAnimation { isPresented = false }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.caption)
+                        .font(Theme.Typography.caption)
                         .foregroundStyle(Theme.Colors.textTertiary)
                 }
             }

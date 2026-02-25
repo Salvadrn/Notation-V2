@@ -1,41 +1,80 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 struct PageCanvasView: View {
     @ObservedObject var viewModel: PageViewModel
+    #if os(iOS)
+    var onHandwritingAction: ((HandwritingAction, UIImage) -> Void)?
+    #endif
 
     var body: some View {
-        ZStack {
-            // Background with ruled lines
-            RuledLinesBackground(pageSize: viewModel.page.displaySize)
+        ZStack(alignment: .bottomTrailing) {
+            ZStack {
+                // Background with ruled lines
+                RuledLinesBackground(pageSize: viewModel.page.displaySize)
 
-            // Text layer
-            if viewModel.textLayer?.isVisible != false {
-                TextEditorView(viewModel: viewModel)
+                // Text layer
+                if viewModel.textLayer?.isVisible != false {
+                    TextEditorView(viewModel: viewModel)
+                }
+
+                // Drawing layer (iPad only)
+                #if os(iOS)
+                if viewModel.drawingLayer?.isVisible != false,
+                   let drawingLayer = viewModel.drawingLayer {
+                    DrawingCanvasView(
+                        layerId: drawingLayer.id,
+                        initialData: drawingLayer.drawingData,
+                        onDrawingChanged: { data in
+                            Task { await viewModel.updateDrawingData(data) }
+                        }
+                    )
+                    .allowsHitTesting(viewModel.isEditing == false)
+                }
+                #endif
             }
 
-            // Drawing layer (iPad only)
+            // Convert to Handwriting button (Navy blue)
             #if os(iOS)
-            if viewModel.drawingLayer?.isVisible != false,
-               let drawingLayer = viewModel.drawingLayer {
-                DrawingCanvasView(
-                    layerId: drawingLayer.id,
-                    initialData: drawingLayer.drawingData,
-                    onDrawingChanged: { data in
-                        Task { await viewModel.updateDrawingData(data) }
-                    }
-                )
-                .allowsHitTesting(viewModel.isEditing == false)
-            }
+            convertButton
             #endif
-
-            // Handwriting layer
-            if viewModel.handwritingLayer?.isVisible != false {
-                HandwritingRenderView(blocks: viewModel.textBlocks)
-                    .allowsHitTesting(false)
-            }
         }
         .clipped()
+        #if os(iOS)
+        .sheet(isPresented: $viewModel.showHandwritingResult) {
+            HandwritingResultView(
+                textBlocks: viewModel.textBlocks,
+                onAction: { action, image in
+                    onHandwritingAction?(action, image)
+                }
+            )
+        }
+        #endif
     }
+
+    #if os(iOS)
+    private var convertButton: some View {
+        Button {
+            viewModel.showHandwritingResult = true
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "hand.draw.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                Text("Convert to My Handwriting")
+                    .font(.custom("Aptos-Bold", size: 14))
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .background(Color(hex: "#1B2A4A"))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .shadow(color: Color(hex: "#1B2A4A").opacity(0.4), radius: 8, y: 4)
+        }
+        .padding(20)
+    }
+    #endif
 }
 
 struct RuledLinesBackground: View {

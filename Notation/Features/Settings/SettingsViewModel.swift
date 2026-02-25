@@ -10,6 +10,9 @@ final class SettingsViewModel: ObservableObject {
 
     private let authService: AuthService
     private let tokenService: TokenService
+    private let supabase = SupabaseService.shared
+
+    private var isGuest: Bool { supabase.isGuestMode }
 
     init(authService: AuthService = AuthService(), tokenService: TokenService = TokenService()) {
         self.authService = authService
@@ -17,6 +20,21 @@ final class SettingsViewModel: ObservableObject {
     }
 
     func loadProfile() async {
+        // In guest mode, don't call Supabase at all
+        if isGuest {
+            profile = Profile(
+                id: supabase.currentUserId ?? UUID(),
+                fullName: "Guest",
+                avatarUrl: nil,
+                subscriptionTier: .free,
+                tokenBalance: 0,
+                createdAt: nil,
+                updatedAt: nil
+            )
+            tokenBalance = 0
+            return
+        }
+
         isLoading = true
         defer { isLoading = false }
 
@@ -29,6 +47,7 @@ final class SettingsViewModel: ObservableObject {
     }
 
     func updateProfile(fullName: String) async {
+        guard !isGuest else { return }
         var updated = profile
         updated.fullName = fullName
         do {
@@ -40,6 +59,10 @@ final class SettingsViewModel: ObservableObject {
     }
 
     func signOut() async {
+        if isGuest {
+            supabase.exitGuestMode()
+            return
+        }
         do {
             try await authService.signOut()
         } catch {

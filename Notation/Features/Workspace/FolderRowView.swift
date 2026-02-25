@@ -35,7 +35,7 @@ struct FolderRowView: View {
                         }
                     } label: {
                         Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
-                            .font(.caption)
+                            .font(Theme.Typography.caption)
                             .foregroundStyle(Theme.Colors.textTertiary)
                             .frame(width: 16)
                     }

@@ -35,21 +35,88 @@ final class AuthService: ObservableObject {
             }
 
             // Upsert profile so it exists for both new and returning users
-            let profile = Profile(
-                id: session.user.id,
-                fullName: displayName.isEmpty ? nil : displayName,
-                avatarUrl: nil,
-                subscriptionTier: .free,
-                tokenBalance: Constants.Tokens.starterPackAmount,
-                createdAt: nil,
-                updatedAt: nil
+            // Profile upsert is best-effort — auth already succeeded at this point
+            await upsertProfile(
+                userId: session.user.id,
+                fullName: displayName.isEmpty ? nil : displayName
             )
 
+        } catch {
+            errorMessage = error.localizedDescription
+            throw error
+        }
+    }
+
+    func signInWithEmail(email: String, password: String) async throws {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            let session = try await supabase.client.auth.signIn(
+                email: email,
+                password: password
+            )
+
+            await upsertProfile(userId: session.user.id, fullName: nil)
+        } catch {
+            errorMessage = error.localizedDescription
+            throw error
+        }
+    }
+
+    func signUpWithEmail(email: String, password: String) async throws {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            let response = try await supabase.client.auth.signUp(
+                email: email,
+                password: password
+            )
+
+            if let session = response.session {
+                await upsertProfile(userId: session.user.id, fullName: nil)
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+            throw error
+        }
+    }
+
+    /// Best-effort profile upsert — logs but doesn't throw on failure
+    private func upsertProfile(userId: UUID, fullName: String?) async {
+        let profile = Profile(
+            id: userId,
+            fullName: fullName,
+            avatarUrl: nil,
+            subscriptionTier: .free,
+            tokenBalance: Constants.Tokens.starterPackAmount,
+            createdAt: nil,
+            updatedAt: nil
+        )
+        do {
             try await supabase.client
                 .from("profiles")
                 .upsert(profile, onConflict: "id", ignoreDuplicates: true)
                 .execute()
+        } catch {
+            print("[AuthService] Profile upsert failed: \(error.localizedDescription)")
+        }
+    }
 
+    /// Send a magic link to the user's email (passwordless sign-in)
+    func signInWithMagicLink(email: String) async throws {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            try await supabase.client.auth.signInWithOTP(
+                email: email,
+                redirectTo: URL(string: "notation://auth/callback")
+            )
         } catch {
             errorMessage = error.localizedDescription
             throw error

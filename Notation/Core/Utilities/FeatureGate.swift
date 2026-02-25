@@ -51,14 +51,14 @@ final class FeatureGate: ObservableObject {
         case .free:
             return currentMonthlyCount < Constants.FreeTier.maxConversionsPerMonth
         case .pro:
-            return currentMonthlyCount < Constants.ProTier.maxConversionsPerMonth
+            return true // Pro users have unlimited conversions
         }
     }
 
     var maxConversionsPerMonth: Int {
         switch currentTier {
         case .free: return Constants.FreeTier.maxConversionsPerMonth
-        case .pro: return Constants.ProTier.maxConversionsPerMonth
+        case .pro: return Int.max
         }
     }
 

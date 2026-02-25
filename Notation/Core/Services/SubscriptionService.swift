@@ -8,6 +8,10 @@ final class SubscriptionService: ObservableObject {
     @Published var isProUser = false
     @Published var isLoading = false
 
+    #if DEBUG
+    @Published var debugProOverride = false
+    #endif
+
     private var transactionListener: Task<Void, Error>?
 
     init() {
@@ -69,6 +73,7 @@ final class SubscriptionService: ObservableObject {
         for await result in Transaction.currentEntitlements {
             if let transaction = try? checkVerified(result) {
                 purchasedProductIDs.insert(transaction.productID)
+                await transaction.finish()
             }
         }
         updateProStatus()
@@ -109,9 +114,22 @@ final class SubscriptionService: ObservableObject {
     }
 
     private func updateProStatus() {
+        #if DEBUG
+        if debugProOverride {
+            isProUser = true
+            return
+        }
+        #endif
         isProUser = purchasedProductIDs.contains(Constants.Products.proMonthly) ||
                     purchasedProductIDs.contains(Constants.Products.proYearly)
     }
+
+    #if DEBUG
+    func toggleDebugPro() {
+        debugProOverride.toggle()
+        updateProStatus()
+    }
+    #endif
 
     nonisolated private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {

@@ -41,7 +41,7 @@ struct ToolbarButton: View {
 
                 if let label {
                     Text(label)
-                        .font(.system(size: 10))
+                        .font(.custom("Aptos", size: 10))
                 }
             }
             .foregroundStyle(isActive ? Theme.Colors.primaryFallback : Theme.Colors.textSecondary)

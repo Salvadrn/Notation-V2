@@ -87,6 +87,8 @@ struct NewNotebookSheet: View {
             }
         }
         .onAppear { isFocused = true }
-        .sheetStyle()
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+        .presentationCornerRadius(Theme.Radius.xl)
     }
 }

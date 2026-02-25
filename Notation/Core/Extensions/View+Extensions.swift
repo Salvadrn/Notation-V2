@@ -50,7 +50,27 @@ extension View {
             .presentationDragIndicator(.visible)
             .presentationCornerRadius(Theme.Radius.xl)
     }
+
+    #if os(iOS)
+    func withHaptic(_ type: HapticType = .light) -> some View {
+        self.simultaneousGesture(TapGesture().onEnded { _ in
+            switch type {
+            case .light: HapticService.light()
+            case .medium: HapticService.medium()
+            case .success: HapticService.success()
+            case .selection: HapticService.selection()
+            case .error: HapticService.error()
+            }
+        })
+    }
+    #endif
 }
+
+#if os(iOS)
+enum HapticType {
+    case light, medium, success, selection, error
+}
+#endif
 
 private struct FirstAppearModifier: ViewModifier {
     let action: () async -> Void

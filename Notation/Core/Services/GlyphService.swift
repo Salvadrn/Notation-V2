@@ -4,13 +4,17 @@ import Supabase
 @MainActor
 final class GlyphService {
     private let supabase: SupabaseService
+    private let localStorage: LocalStorageService
     private let storageService: StorageService
 
     // In-memory cache of loaded glyphs grouped by character
     private var glyphCache: [String: [Glyph]] = [:]
 
+    private var isGuest: Bool { supabase.isGuestMode }
+
     init(supabase: SupabaseService = .shared) {
         self.supabase = supabase
+        self.localStorage = .shared
         self.storageService = StorageService(supabase: supabase)
     }
 
@@ -24,6 +28,12 @@ final class GlyphService {
     }
 
     func fetchAllGlyphs() async throws -> [String: [Glyph]] {
+        if isGuest {
+            let grouped = localStorage.fetchAllGlyphs()
+            glyphCache = grouped
+            return grouped
+        }
+
         let uid = try userId
         let glyphs: [Glyph] = try await supabase.client
             .from("glyphs")
@@ -43,6 +53,12 @@ final class GlyphService {
     }
 
     func fetchGlyphs(for character: String) async throws -> [Glyph] {
+        if isGuest {
+            let glyphs = localStorage.fetchGlyphs(for: character)
+            glyphCache[character] = glyphs
+            return glyphs
+        }
+
         let uid = try userId
         let glyphs: [Glyph] = try await supabase.client
             .from("glyphs")
@@ -62,6 +78,18 @@ final class GlyphService {
 
         guard existingCount < Constants.Handwriting.maxVariations else {
             throw NotationError.freeTierLimit("Maximum \(Constants.Handwriting.maxVariations) variations per character")
+        }
+
+        if isGuest {
+            let glyph = Glyph.new(
+                userId: uid,
+                character: character,
+                variationIndex: existingCount,
+                strokeData: strokeData
+            )
+            localStorage.saveGlyph(glyph)
+            glyphCache[character, default: []].append(glyph)
+            return glyph
         }
 
         var imageUrl: String?
@@ -84,7 +112,6 @@ final class GlyphService {
 
         var glyphToInsert = glyph
         if let url = imageUrl {
-            // We need a mutable copy with the imageUrl set
             glyphToInsert = Glyph(
                 id: glyph.id,
                 userId: glyph.userId,
@@ -106,6 +133,12 @@ final class GlyphService {
     }
 
     func deleteGlyph(id: UUID, character: String) async throws {
+        if isGuest {
+            localStorage.deleteGlyph(id: id)
+            glyphCache[character]?.removeAll { $0.id == id }
+            return
+        }
+
         try await supabase.client
             .from("glyphs")
             .delete()

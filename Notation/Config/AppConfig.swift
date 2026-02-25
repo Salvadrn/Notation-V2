@@ -3,14 +3,8 @@ import Foundation
 enum AppConfig {
     // MARK: - Supabase
     // Replace these with your Supabase project values
-    static let supabaseURL = URL(string: "https://YOUR_PROJECT_REF.supabase.co")!
-    static let supabaseAnonKey = "YOUR_SUPABASE_ANON_KEY"
-
-    // MARK: - Claude API
-    // Replace with your Anthropic API key
-    static let claudeAPIKey = "YOUR_CLAUDE_API_KEY"
-    static let claudeAPIURL = URL(string: "https://api.anthropic.com/v1/messages")!
-    static let claudeModel = "claude-sonnet-4-5-20250929"
+    static let supabaseURL = URL(string: "https://gkoqghnmlodfbfaiktjm.supabase.co")!
+    static let supabaseAnonKey = "sb_publishable_8hnyUQRNdY6YkkB2fnS0qg_HbBDa5ul"
 
     // MARK: - Storage Buckets
     static let avatarsBucket = "avatars"
